@@ -66,6 +66,34 @@ aws sts get-caller-identity --profile terraform
 
 After that, keep `aws_profile = "terraform"` in `terraform.tfvars` and use Terraform normally.
 
+### Create SSH Key Pair
+
+Create one SSH key pair before deployment. This same key pair is used to connect to all EC2 instances in this lab, including:
+
+- Check Point management server
+- Bastion host
+- Linux1 and Linux2 instances
+
+Generate a key pair on Linux/macOS:
+
+```bash
+mkdir -p keys
+ssh-keygen -t rsa -b 4096 -f keys/lab-key -N "" -C "aws-lz-chkp-lab"
+```
+
+This creates:
+
+- Private key: `keys/lab-key`
+- Public key: `keys/lab-key.pub`
+
+Set secure permissions on the private key:
+
+```bash
+chmod 600 keys/lab-key
+```
+
+Terraform reads the public key from `keys/lab-key.pub` by default (via `public_key_path`).
+
 ### Deployment Instructions
 
 1. Copy and edit tfvars:
@@ -101,6 +129,51 @@ terraform validate
 terraform plan -out=tfplan
 terraform apply tfplan
 ```
+
+### Connect Through Bastion
+
+After deployment, use the same private key (`keys/lab-key`) to access the bastion and then the private client machines.
+
+1. Get instance IPs from Terraform outputs:
+
+```bash
+terraform output linux_bastion_public_ip
+terraform output linux1_private_ip
+terraform output linux2_private_ip
+```
+
+1. Save bastion public IP to a shell variable:
+
+```bash
+BASTION_IP=$(terraform output -raw linux_bastion_public_ip)
+```
+
+1. Connect to the bastion host from your terminal:
+
+```bash
+ssh -i keys/lab-key ec2-user@"$BASTION_IP"
+```
+
+1. From inside the bastion, connect to the private client machines:
+
+```bash
+ssh linux1
+ssh linux2
+```
+
+The bastion is preconfigured with these host aliases in `/home/ec2-user/.ssh/config`, so you do not need to type private IP addresses manually.
+
+If needed, you can also connect by private IP from bastion:
+
+```bash
+ssh ec2-user@<linux1_private_ip>
+ssh ec2-user@<linux2_private_ip>
+```
+
+Notes:
+
+- SSH username for Amazon Linux 2023 instances is `ec2-user`.
+- Ensure `bastion_allowed_cidr` in `terraform.tfvars` includes your current public source IP; otherwise SSH to bastion will fail.
 
 ## Notes
 
