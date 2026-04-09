@@ -29,13 +29,24 @@ Admin guide:
 
 ## Quick Start
 
-### Dev Container / Codespaces
+### GitHub Codespaces
 
-This repository includes a dev container in [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json) with both Terraform and AWS CLI preinstalled.
+This repository includes a dev container configuration in [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json) with both Terraform and AWS CLI features preinstalled. The dev container configuration allows this repository to run from GitHub Codespaces without the need to install Terraform or AWS CLI on your own laptop/workstation to deploy this lab. 
 
-If you open the repo in GitHub Codespaces and want background on the model, see [What are GitHub Codespaces?](https://docs.github.com/en/codespaces/about-codespaces/what-are-codespaces).
+Read here for more information about GitHub Codespaces: [What are GitHub Codespaces?](https://docs.github.com/en/codespaces/about-codespaces/what-are-codespaces).
 
-The dev container installs the tools, but it does not create your AWS login profiles automatically. If you want Terraform to use a dedicated AWS CLI profile named `terraform`, the minimum bootstrap below assumes you already have a working `default` AWS CLI login profile. If you do not, create one first with `aws configure sso --profile default` or your organization's standard AWS CLI login flow.
+### AWS CLI Profile Login
+
+The dev container installs the tools, but it does not create your AWS login profiles automatically. It's recommended to use a dedicated AWS CLI profile named `terraform`. 
+
+Using an AWS profile for this lab gives you:
+
+- Better security: no long-lived access keys stored in Terraform files, shell history, or committed by mistake.
+- Easier rotation: SSO/session-based credentials refresh through the AWS CLI flow without editing Terraform variables.
+- Cleaner workflows: switch between accounts/environments by changing profile settings, not by rewriting credentials.
+- Safer collaboration: teammates can use the same Terraform code with their own profile, avoiding shared static secrets.
+
+The minimum bootstrap below assumes you already have a working `default` AWS CLI login profile. If you do not, create one first with `aws configure sso --profile default` or your organization's standard AWS CLI login flow.
 
 Minimum bootstrap commands:
 
@@ -54,6 +65,8 @@ aws sts get-caller-identity --profile terraform
 ```
 
 After that, keep `aws_profile = "terraform"` in `terraform.tfvars` and use Terraform normally.
+
+### Deployment Instructions
 
 1. Copy and edit tfvars:
 
