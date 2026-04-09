@@ -22,6 +22,11 @@ This environment uses:
 
 - `CheckPointSW/cloudguard-network-security/aws//modules/tgw_gwlb_master` version `1.0.10`
 
+Admin guide:
+
+- [Overview of CloudGuard Network for AWS Centralized Gateway Load Balancer](https://sc1.checkpoint.com/documents/IaaS/WebAdminGuides/EN/CP_CloudGuard_Network_for_AWS_Gateway_Load_Balancer_ASG/Default.htm)
+- Use this official Check Point guide for deployment patterns, prerequisites, operations, updates, troubleshooting, and GWLB-specific architecture guidance for this design.
+
 ## Quick Start
 
 ### Dev Container / Codespaces
