@@ -270,3 +270,45 @@ resource "aws_route" "app2_private_to_app1" {
   destination_cidr_block = var.app1_vpc_cidr
   transit_gateway_id     = aws_ec2_transit_gateway.central.id
 }
+
+# Discover GWLBe subnet route tables by name tag (created by Check Point module)
+data "aws_route_table" "gwlbe_subnet1_rtb" {
+  filter {
+    name   = "tag:Name"
+    values = ["GWLBe Subnet 1 Route Table"]
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.inspection.id]
+  }
+
+  depends_on = [module.checkpoint_inspection]
+}
+
+data "aws_route_table" "gwlbe_subnet2_rtb" {
+  filter {
+    name   = "tag:Name"
+    values = ["GWLBe Subnet 2 Route Table"]
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.inspection.id]
+  }
+
+  depends_on = [module.checkpoint_inspection]
+}
+
+# Add route for Spoke CIDRs via TGW to both GWLBe subnet route tables (required for east-west traffic through firewall)
+resource "aws_route" "gwlbe_subnet1_to_spokes" {
+  route_table_id         = data.aws_route_table.gwlbe_subnet1_rtb.id
+  destination_cidr_block = "10.0.0.0/8"
+  transit_gateway_id     = aws_ec2_transit_gateway.central.id
+}
+
+resource "aws_route" "gwlbe_subnet2_to_spokes" {
+  route_table_id         = data.aws_route_table.gwlbe_subnet2_rtb.id
+  destination_cidr_block = "10.0.0.0/8"
+  transit_gateway_id     = aws_ec2_transit_gateway.central.id
+}
