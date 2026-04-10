@@ -27,15 +27,15 @@ Admin guide:
 - [Overview of CloudGuard Network for AWS Centralized Gateway Load Balancer](https://sc1.checkpoint.com/documents/IaaS/WebAdminGuides/EN/CP_CloudGuard_Network_for_AWS_Gateway_Load_Balancer_ASG/Default.htm)
 - Use this official Check Point guide for deployment patterns, prerequisites, operations, updates, troubleshooting, and GWLB-specific architecture guidance for this design.
 
-## Quick Start
+## Environment Setup
 
-### GitHub Codespaces
+### GitHub Codespaces (Optional)
 
 This repository includes a dev container configuration in [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json) with both Terraform and AWS CLI features preinstalled. The dev container configuration allows this repository to run from GitHub Codespaces without the need to install Terraform or AWS CLI on your own laptop/workstation to deploy this lab. 
 
 Read here for more information about GitHub Codespaces: [What are GitHub Codespaces?](https://docs.github.com/en/codespaces/about-codespaces/what-are-codespaces).
 
-### AWS CLI Profile Login
+### AWS CLI Profile Login (Optional)
 
 The dev container installs the tools, but it does not create your AWS login profiles automatically. It's recommended to use AWS SSO to create a dedicated AWS CLI profile named `terraform`.
 
@@ -101,6 +101,8 @@ chmod 600 keys/lab-key
 ```
 
 Terraform reads the public key from `keys/lab-key.pub` by default (via `public_key_path`).
+
+## Quick Start
 
 ### Deployment Instructions
 
