@@ -37,34 +37,42 @@ Read here for more information about GitHub Codespaces: [What are GitHub Codespa
 
 ### AWS CLI Profile Login
 
-The dev container installs the tools, but it does not create your AWS login profiles automatically. It's recommended to use a dedicated AWS CLI profile named `terraform`. 
+The dev container installs the tools, but it does not create your AWS login profiles automatically. It's recommended to use AWS SSO to create a dedicated AWS CLI profile named `terraform`.
 
-Using an AWS profile for this lab gives you:
+Using SSO for this lab gives you:
 
 - Better security: no long-lived access keys stored in Terraform files, shell history, or committed by mistake.
-- Easier rotation: SSO/session-based credentials refresh through the AWS CLI flow without editing Terraform variables.
+- Easier credential rotation: temporary session-based credentials that auto-refresh without manual intervention.
 - Cleaner workflows: switch between accounts/environments by changing profile settings, not by rewriting credentials.
-- Safer collaboration: teammates can use the same Terraform code with their own profile, avoiding shared static secrets.
+- Safer collaboration: teammates can use the same Terraform code with their own SSO profile, avoiding shared static secrets.
 
-The minimum bootstrap below assumes you already have a working `default` AWS CLI login profile. If you do not, create one first with `aws configure sso --profile default` or your organization's standard AWS CLI login flow.
-
-Minimum bootstrap commands:
+**Create the SSO profile with this single command:**
 
 ```bash
-LOGIN_SESSION=$(aws configure get login_session --profile default)
-REGION=$(aws configure get region --profile default)
+aws configure sso --profile terraform
+```
 
-aws configure set login_session "$LOGIN_SESSION" --profile terraform-login
-aws configure set region "${REGION:-eu-west-1}" --profile terraform-login
+**When prompted, you will need to provide:**
 
-aws configure set credential_process "aws configure export-credentials --profile terraform-login" --profile terraform
-aws configure set region "${REGION:-eu-west-1}" --profile terraform
+1. **SSO session name** - Enter any name for this session (e.g., `terraform`)
+2. **SSO start URL** - Find this in your AWS portal:
+   - Navigate to your **AWS SSO console** or AWS accounts page
+   - Look for the **Start URL** (typically something like `https://my-org.awsapps.com/start`)
+   - Copy and paste it here
+3. **SSO region** - Find this in your AWS portal:
+   - In the same AWS SSO console, check the **Region** setting (typically `us-east-1`)
+   - Enter this region
+4. **AWS account and role selection** - Your browser will open for authentication. Select your AWS account and the appropriate role (e.g., `AdministratorAccess` or your organization's equivalent)
+5. **Default region** - Enter `eu-west-1` (or your preferred region)
+6. **Output format** - Leave blank or enter `json`
 
-aws login --profile terraform-login --remote
+**After setup, verify the profile works:**
+
+```bash
 aws sts get-caller-identity --profile terraform
 ```
 
-After that, keep `aws_profile = "terraform"` in `terraform.tfvars` and use Terraform normally.
+Keep `aws_profile = "terraform"` in `terraform.tfvars` and use Terraform normally. Your AWS credentials will automatically refresh through the SSO flow when needed.
 
 ### Create SSH Key Pair
 
