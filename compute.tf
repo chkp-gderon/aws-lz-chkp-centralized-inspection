@@ -39,11 +39,11 @@ resource "aws_security_group" "linux_app1" {
   vpc_id      = aws_vpc.app1.id
 
   ingress {
-    description = "SSH from App1 VPC (including bastion)"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.app1_vpc_cidr]
+    description = "All traffic from anywhere"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -64,11 +64,11 @@ resource "aws_security_group" "linux_app2" {
   vpc_id      = aws_vpc.app2.id
 
   ingress {
-    description = "SSH from App1 VPC"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.app1_vpc_cidr]
+    description = "All traffic from anywhere"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
