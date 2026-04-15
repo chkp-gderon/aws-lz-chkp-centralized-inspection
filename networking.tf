@@ -300,6 +300,95 @@ data "aws_route_table" "gwlbe_subnet2_rtb" {
   depends_on = [module.checkpoint_inspection]
 }
 
+data "aws_route_table" "nat_gw_subnet1_rtb" {
+  filter {
+    name   = "tag:Name"
+    values = ["NAT Subnet 1 Route Table"]
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.inspection.id]
+  }
+
+  depends_on = [module.checkpoint_inspection]
+}
+
+data "aws_route_table" "nat_gw_subnet2_rtb" {
+  filter {
+    name   = "tag:Name"
+    values = ["NAT Subnet 2 Route Table"]
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.inspection.id]
+  }
+
+  depends_on = [module.checkpoint_inspection]
+}
+
+data "aws_route_table" "inspection_public_subnets_rtb" {
+  filter {
+    name   = "tag:Name"
+    values = ["Public Subnets Route Table"]
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.inspection.id]
+  }
+
+  depends_on = [module.checkpoint_inspection]
+}
+
+data "aws_vpc_endpoint" "gwlb_endpoint1" {
+  filter {
+    name   = "tag:Name"
+    values = ["gwlb_endpoint1"]
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.inspection.id]
+  }
+
+  depends_on = [module.checkpoint_inspection]
+}
+
+data "aws_vpc_endpoint" "gwlb_endpoint2" {
+  filter {
+    name   = "tag:Name"
+    values = ["gwlb_endpoint2"]
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.inspection.id]
+  }
+
+  depends_on = [module.checkpoint_inspection]
+}
+
+# Route private/RFC1918 traffic from NAT GW subnets through the same-AZ GWLBe for inspection
+resource "aws_route" "nat_gw_subnet1_to_gwlbe" {
+  route_table_id         = data.aws_route_table.nat_gw_subnet1_rtb.id
+  destination_cidr_block = "10.0.0.0/8"
+  vpc_endpoint_id        = data.aws_vpc_endpoint.gwlb_endpoint1.id
+}
+
+resource "aws_route" "nat_gw_subnet2_to_gwlbe" {
+  route_table_id         = data.aws_route_table.nat_gw_subnet2_rtb.id
+  destination_cidr_block = "10.0.0.0/8"
+  vpc_endpoint_id        = data.aws_vpc_endpoint.gwlb_endpoint2.id
+}
+
+resource "aws_route" "inspection_public_subnets_to_spokes" {
+  route_table_id         = data.aws_route_table.inspection_public_subnets_rtb.id
+  destination_cidr_block = "10.0.0.0/8"
+  transit_gateway_id     = aws_ec2_transit_gateway.central.id
+}
+
 # Add route for Spoke CIDRs via TGW to both GWLBe subnet route tables (required for east-west traffic through firewall)
 resource "aws_route" "gwlbe_subnet1_to_spokes" {
   route_table_id         = data.aws_route_table.gwlbe_subnet1_rtb.id
