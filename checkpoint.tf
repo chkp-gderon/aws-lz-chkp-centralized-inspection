@@ -80,6 +80,8 @@ data "aws_vpc" "inspection" {
     name   = "cidr-block"
     values = [var.inspection_vpc_cidr]
   }
+
+  depends_on = [module.checkpoint_inspection]
 }
 
 data "aws_subnets" "inspection_tgw" {
@@ -92,4 +94,6 @@ data "aws_subnets" "inspection_tgw" {
     name   = "tag:Name"
     values = ["tgw subnet 5", "tgw subnet 6"]
   }
+
+  depends_on = [module.checkpoint_inspection]
 }
