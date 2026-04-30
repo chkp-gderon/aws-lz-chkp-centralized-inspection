@@ -1,19 +1,13 @@
 variable "project_name" {
   description = "Project name used in resource naming and tags"
   type        = string
-  default     = "aws-lz"
+  default     = "aws-chkp-centralized-inspection"
 }
 
 variable "environment" {
   description = "Environment name"
   type        = string
   default     = "lab"
-}
-
-variable "lab_name" {
-  description = "Lab identifier"
-  type        = string
-  default     = "aws-lz-chkp-centralized-inspection"
 }
 
 variable "aws_region" {
